@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ object.surname }}
+{% endblock %}
+
+{% block study %}
+  {% with subject=object.subject %}
+    <h1>
+      {{ object.title }}
+    </h1>
+    <div class="case">
+      <h2>Overview</h2>
+      <p>
+        <a href="{% url "patient_list_subject" subject.slug %}">
+        {{ subject.surname }}</a>.
+        {{ object.cases.count }} cases.
+        Instructor: {{ object.owner.get_full_name }}
+      </p>
+      {{ object.overview|linebreaks }}
+    </div>
+  {% endwith %}
+{% endblock %}

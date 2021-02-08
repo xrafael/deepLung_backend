@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object %}
+    Edit patient "{{ object.surname }}"
+  {% else %}
+    Create a new patient
+  {% endif %}
+{% endblock %}
+
+{% block study %}
+  <h1>
+    {% if object %}
+      Edit patient "{{ object.surname }}"
+    {% else %}
+      Create a new patient
+    {% endif %}
+  </h1>
+  <div class="case">
+    <h2>Patient info</h2>
+    <form method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <p><input type="submit" value="Save patient"></p>
+    </form>
+  </div>
+{% endblock %}

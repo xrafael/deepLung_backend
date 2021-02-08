@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Edit "{{ patient.surname }}"
+{% endblock %}
+
+{% block study %}
+  <h1>Edit "{{ patient.surname }}"</h1>
+  <div class="case">
+    <h2>Patient cases</h2>
+    <form method="post">
+      {{ formset }}
+      {{ formset.management_form }}
+      {% csrf_token %}
+      <input type="submit" value="Save cases">
+    </form>
+  </div>
+{% endblock %}

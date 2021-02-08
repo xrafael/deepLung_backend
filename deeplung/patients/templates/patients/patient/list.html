@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if subject %}
+    {{ subject.title }} patients
+  {% else %}
+    All patients
+  {% endif %}
+{% endblock %}
+
+{% block study %}
+  <h1>
+    {% if subject %}
+      {{ subject.title }} patients
+    {% else %}
+      All patients
+    {% endif %}
+  </h1>
+  <div class="studys">
+    <h3>Subjects</h3>
+    <ul id="cases">
+      <li {% if not subject %}class="selected"{% endif %}>
+        <a href="{% url "patient_list" %}">All</a>
+      </li>
+      {% for s in subjects %}
+        <li {% if subject == s %}class="selected"{% endif %}>
+          <a href="{% url "patient_list_subject" s.slug %}">
+            {{ s.title }}
+            <br><span>{{ s.total_patients }} patients</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="case">
+    {% for patient in patients %}
+      {% with subject=patient.subject %}
+        <h3>
+          <a href="{% url "patient_detail" patient.surname %}">
+            {{ patient.surname }}
+          </a>
+        </h3>
+        <p>
+          <a href="{% url "patient_list_subject" subject.slug %}">{{ subject }}</a>.
+            {{ patient.total_cases }} cases.
+            Instructor: {{ patient.owner.get_full_name }}
+        </p>
+      {% endwith %}
+    {% endfor %}
+  </div>
+{% endblock %}

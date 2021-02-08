@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load patient %}
+
+{% block title %}
+  Case {{ case.order|add:1 }}: {{ case.title }}
+{% endblock %}
+
+{% block study %}
+  {% with patient=case.patient %}
+    <h1>Patient "{{ patient.surname }}"</h1>
+    <div class="studies">
+      <h3>Cases</h3>
+      <ul id="cases">
+        {% for m in patient.cases.all %}
+          <li data-id="{{ m.id }}" {% if m == case %}
+           class="selected"{% endif %}>
+            <a href="{% url "case_study_list" m.id %}">
+              <span>
+                Case <span class="order">{{ m.order|add:1 }}</span>
+              </span>
+              <br>
+              {{ m.surname }}
+            </a>
+          </li>
+        {% empty %}
+          <li>No cases yet.</li>
+        {% endfor %}
+      </ul>
+      <p><a href="{% url "patient_case_update" patient.id %}">
+      Edit cases</a></p>
+    </div>
+    <div class="case">
+      <h2>Case {{ case.order|add:1 }}: {{ case.title }}</h2>
+      <h3>Case studies:</h3>
+
+      <div id="case-studies">
+        {% for study in case.studies.all %}
+          <div data-id="{{ study.id }}">
+            {% with item=study.item %}
+              <p>{{ item }} ({{ item|model_name }})</p>
+              <a href="{% url "case_study_update" case.id item|model_name item.id %}">
+                Edit
+              </a>
+              <form action="{% url "case_study_delete" study.id %}" method="post">
+                <input type="submit" value="Delete">
+                {% csrf_token %}
+              </form>
+            {% endwith %}
+          </div>
+        {% empty %}
+          <p>This case has no studies yet.</p>
+        {% endfor %}
+      </div>
+      <h3>Add new study:</h3>
+      <ul class="study-types">
+        <li><a href="{% url "case_study_create" case.id "text" %}">
+        Text</a></li>
+        <li><a href="{% url "case_study_create" case.id "image" %}">
+        Image</a></li>
+        <li><a href="{% url "case_study_create" case.id "video" %}">
+        Video</a></li>
+        <li><a href="{% url "case_study_create" case.id "file" %}">
+        File</a></li>
+      </ul>
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{% block domready %}
+  $('#cases').sortable({
+      stop: function(event, ui) {
+          cases_order = {};
+          $('#cases').children().each(function(){
+              // update the order field
+              $(this).find('.order').text($(this).index() + 1);
+              // associate the case's id with its order
+              cases_order[$(this).data('id')] = $(this).index();
+          });
+          $.ajax({
+              type: 'POST',
+              url: '{% url "case_order" %}',
+              studyType: 'application/json; charset=utf-8',
+              dataType: 'json',
+              data: JSON.stringify(cases_order)
+          });
+      }
+  });
+
+  $('#case-studies').sortable({
+      stop: function(event, ui) {
+          studies_order = {};
+          $('#case-studies').children().each(function(){
+              // associate the case's id with its order
+              studies_order[$(this).data('id')] = $(this).index();
+          });
+
+          $.ajax({
+              type: 'POST',
+              url: '{% url "study_order" %}',
+              studyType: 'application/json; charset=utf-8',
+              dataType: 'json',
+              data: JSON.stringify(studies_order),
+          });
+      }
+  });
+{% endblock %}
