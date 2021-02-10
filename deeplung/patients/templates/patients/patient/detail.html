@@ -1,23 +1,42 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {{ object.surname }}
+  {{ object.title }}
 {% endblock %}
 
 {% block study %}
   {% with subject=object.subject %}
     <h1>
-      {{ object.title }}
+      {{ object.surname }} {{ object.name }}
     </h1>
     <div class="case">
       <h2>Overview</h2>
       <p>
         <a href="{% url "patient_list_subject" subject.slug %}">
-        {{ subject.surname }}</a>.
+        {{ subject.title }}</a>.
         {{ object.cases.count }} cases.
-        Instructor: {{ object.owner.get_full_name }}
+        Created by: {{ object.owner }}
       </p>
       {{ object.overview|linebreaks }}
     </div>
+    <div class="contents">
+    <h3>Cases</h3>
+    <ul id="cases">
+      {% for m in object.cases.all %}
+        <li data-id="{{ m.id }}" {% if m == case %}class="selected"{% endif %}>
+          <a>
+            {{ m.title }} ({{ m.slug }})
+          </a>
+        </li>
+        <b> Anamnesis: </b> {{ m.anamnesis }} <br>
+        <b> Number of nodules: </b> {{ m.number_nods }} <br>
+        <b> Medical history: </b> {{ m.med_history }} <br>
+        <b> Evolution and Treatment: </b> {{ m.evolution_treatment }} <br>
+        <b> Created on: </b> {{ m.created }} <br>
+        <br>
+      {% empty %}
+        <li>No modules yet.</li>
+      {% endfor %}
+    </ul>
   {% endwith %}
 {% endblock %}

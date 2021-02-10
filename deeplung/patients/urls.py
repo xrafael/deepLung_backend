@@ -50,7 +50,7 @@ urlpatterns = [
           views.PatientListView.as_view(),
           name='patient_list_subject'),
     
-    path('<str:surname>/',
+    path('<slug:slug>/',
           views.PatientDetailView.as_view(),
           name='patient_detail'),
 ]

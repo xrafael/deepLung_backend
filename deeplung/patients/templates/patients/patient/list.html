@@ -36,7 +36,7 @@
     {% for patient in patients %}
       {% with subject=patient.subject %}
         <h3>
-          <a href="{% url "patient_detail" patient.surname %}">
+          <a href="{% url "patient_detail" patient.slug %}">
             {{ patient.surname }}
           </a>
         </h3>

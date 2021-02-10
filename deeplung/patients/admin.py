@@ -14,8 +14,8 @@ class CaseInline(admin.StackedInline):
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ['name', 'surname', 'subject', 'created']
+    list_display = ['name', 'surname', 'slug', 'subject', 'created']
     list_filter = ['created', 'subject']
     search_fields = ['surname', 'name', 'created']
-    #prepopulated_fields = {'slug': ('title',)}
+    #prepopulated_fields = {'slug': ('unique_id',)}
     inlines = [CaseInline]
