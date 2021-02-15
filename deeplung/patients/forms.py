@@ -6,6 +6,6 @@ from .models import Patient, Case
 CaseFormSet = inlineformset_factory(Patient,
                                       Case,
                                       fields=['title',
-                                              'anamnesis'],
+                                              'annotations'],
                                       extra=2,
                                       can_delete=True)

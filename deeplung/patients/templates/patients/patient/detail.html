@@ -28,11 +28,11 @@
             {{ m.title }} ({{ m.slug }})
           </a>
         </li>
-        <b> Anamnesis: </b> {{ m.anamnesis }} <br>
+        <b> Predictions: </b> {{ m.predictions }} <br>
         <b> Number of nodules: </b> {{ m.number_nods }} <br>
-        <b> Medical history: </b> {{ m.med_history }} <br>
-        <b> Evolution and Treatment: </b> {{ m.evolution_treatment }} <br>
+        <b> Annotations: </b> {{ m.annotations }} <br>
         <b> Created on: </b> {{ m.created }} <br>
+        {{ m.item.render }} <br>
         <br>
       {% empty %}
         <li>No modules yet.</li>

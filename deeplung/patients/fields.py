@@ -83,5 +83,5 @@ try:
     add_introspection_rules([], [r"^shortuuidfield\.fields\.ShortUUIDField"])
 except ImportError:
     pass
-        
+    
     
