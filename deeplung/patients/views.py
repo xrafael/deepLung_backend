@@ -32,7 +32,7 @@ class OwnerPatientMixin(OwnerMixin,
                        LoginRequiredMixin,
                        PermissionRequiredMixin):
     model = Patient
-    fields = ['slug', 'name', 'surname', 'age', 'gender', 'created']
+    fields = ['slug', 'name', 'surname', 'created']
     success_url = reverse_lazy('manage_patient_list')
 
 

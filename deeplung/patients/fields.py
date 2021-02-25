@@ -1,7 +1,10 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from multiupload.fields import MultiImageField
+from django import forms
 #import random
-#import string 
+#import string
+from PIL import Image
 import pdb
 import shortuuid
 import six
@@ -83,5 +86,51 @@ try:
     add_introspection_rules([], [r"^shortuuidfield\.fields\.ShortUUIDField"])
 except ImportError:
     pass
+    
+    
+#class SlicesField(models.ImageField):
+#    def __init__(self, ct=None, upload_to='images', *args, **kwargs):
+#        self.ct = ct
+#        #pdb.set_trace()
+#        super().__init__(null=True, blank=True, upload_to='images', *args, **kwargs)
+#    
+#    def get_slices(self):
+#        pdb.set_trace()
+#        if hasattr(obj, 'ct'):
+#            idxs = [i+1 for i in range(len(obj.ct.path)) if obj.ct.path[i]=='/']
+#            name = './tmp/' + obj.ct.path[idxs[-1]:]
+#            with open(name, 'wb') as f:
+#                f.write(obj.ct.read())
+#                
+#            img = nib.load(name)
+#            #pdb.set_trace()
+#            #print(img.get_fdata().shape)
+#            images = [Image.fromarray(np.array(img.get_fdata()[:,:,i])) for i in range(img.get_fdata().shape[2])]
+#            os.remove(name)
+#            #plt.imshow(img.get_fdata()[:,:,int(img.shape[2]/2)])
+#            
+#            #dicom = dcmread(self.ct)
+#            #tensor = np.array(dicom.pixel_array)
+#        
+#            #images = MultiImageField(min_num=1, max_num=300, max_file_size=None)
+#            #pdb.set_trace()
+#        
+#            # save single slices
+#            return images
+#    
+#    def pre_save(self, model_instance, add):
+#        pdb.set_trace()
+#        file = self.get_slices()
+#        if file and not file._committed:
+#            # Commit the file to storage prior to saving the model
+#            file.save(file.name, file.file, save=False)
+#        return file
+#    
+#    def save(self, name, content, save=True):
+#        pdb.set_trace()
+#        content = self.get_slices()
+#        name = self.field.generate_filename(self.instance, name)
+#        self.name = self.storage.save(name, content, max_length=self.field.max_length)
+#        super().save(name, content, *args, **kwargs)
     
     
