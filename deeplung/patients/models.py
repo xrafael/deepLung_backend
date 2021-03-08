@@ -6,6 +6,8 @@ from .fields import OrderField, ShortUUIDField
 from django.template.loader import render_to_string
 from multiupload.fields import MultiImageField
 from deeplung.settings import MEDIA_ROOT
+from django.db.models.signals import post_save
+from django.db import transaction
 
 import matplotlib.pyplot as plt
 from pydicom import dcmread
@@ -29,8 +31,11 @@ import pdb
 #    #pdb.set_trace()
 #    return value
     
-    
-    
+PLANE_CHOICES = (
+    (0, 'axial'),
+    (1, 'sagittal'),
+    (2, 'coronal'),
+)    
     
 GENDER_CHOICES = (
     (0, 'male'),
@@ -88,7 +93,7 @@ class Patient(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return self.surname
+        return f'{self.slug}. {self.name}. {self.surname}'
 
 
 class Case(models.Model):
@@ -103,82 +108,169 @@ class Case(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     order = OrderField(blank=True, for_fields=['patient'])
     ct = models.FileField(upload_to='files/')
-    slices = models.TextField(blank=True, null=True, editable=False)
+    #slices = models.FileField(upload_to='img_data/', blank=True, null=True, editable=False)
     
-    def get_slices(obj):
-        #pdb.set_trace()
-        if hasattr(obj, 'ct'):
-            
-            idxs = [i+1 for i in range(len(obj.ct.path)) if obj.ct.path[i]=='/']
-            name = MEDIA_ROOT + 'tmp/' + obj.ct.path[idxs[-1]:]
-            with open(name, 'wb') as f:
-                f.write(obj.ct.read())
-                
-            img = nib.load(name)
-            #pdb.set_trace()
-            #print(img.get_fdata().shape)
-            images = [np.array(img.get_fdata()[:,:,i]) 
-                      for i in range(img.get_fdata().shape[2])]
-            images8 = [((images[j]-np.min(images[j]))/(np.max(images[j])-
-                       np.min(images[j]))*255).astype(np.uint8) 
-                       for j in range(len(images))]
-            #pdb.set_trace()
-            os.remove(name)
-            return images8
+    #def get_slices(obj):
+    #    #pdb.set_trace()
+    #    if hasattr(obj, 'ct'):
+    #        
+    #        idxs = [i+1 for i in range(len(obj.ct.path)) if obj.ct.path[i]=='/']
+    #        name = MEDIA_ROOT + 'tmp/' + obj.ct.path[idxs[-1]:]
+    #        with open(name, 'wb') as f:
+    #            f.write(obj.ct.read())
+    #            
+    #        img = nib.load(name)
+    #        #pdb.set_trace()
+    #        #print(img.get_fdata().shape)
+    #        images = [np.array(img.get_fdata()[:,:,i]) 
+    #                  for i in range(img.get_fdata().shape[2])]
+    #        images8 = [((images[j]-np.min(images[j]))/(np.max(images[j])-
+    #                   np.min(images[j]))*255).astype(np.uint8) 
+    #                   for j in range(len(images))]
+    #        #pdb.set_trace()
+    #        os.remove(name)
+    #        return images8
     
-    def save(self, *args, **kwargs):
-        if hasattr(self.ct, 'path'):
-            imgs = self.get_slices()
-            str_txt = ''
-            if not os.path.exists(MEDIA_ROOT +'images/' + self.patient.slug + '/'):
-                os.makedirs(MEDIA_ROOT + 'images/' + self.patient.slug + '/')
-            #pdb.set_trace()
-            for i, img in enumerate(imgs):
-                name = (MEDIA_ROOT + 'images/' + self.patient.slug + '/' +
-                        self.slug + '_ax_' + str(i).zfill(3) + '.png')
-                fromarray(img, 'L').save(name)
-                #pdb.set_trace()
-                str_txt += 'ax\t' + str(i).zfill(3) + '\t' + name + '\n'
+    #def save(self, *args, **kwargs):
+    #    super(Case, self).save(*args, **kwargs)
+    #    if hasattr(self.ct, 'path'):
+    #        imgs = self.get_slices()
+    #        str_txt = ''
+    #        if not os.path.exists(MEDIA_ROOT +'images/' + self.patient.slug + '/'):
+    #            os.makedirs(MEDIA_ROOT + 'images/' + self.patient.slug + '/')
+    #        #pdb.set_trace()
+    #        for i, img in enumerate(imgs):
+    #            name = (MEDIA_ROOT + 'images/' + self.patient.slug + '/' +
+    #                    self.slug + '_ax_' + str(i).zfill(3) + '.png')
+    #            fromarray(img, 'L').save(name)
+    #            #pdb.set_trace()
+    #            str_txt += 'ax\t' + str(i).zfill(3) + '\t' + name + '\n'
+    #        
+    #        with open(MEDIA_ROOT + 'img_data/' + self.patient.slug + '_' +
+    #                  self.slug + '.txt', 'w') as f:
+    #            f.write(str_txt)
+    #        
+    #        #pdb.set_trace()
+    #        self.slices = ('img_data/' + self.patient.slug + '_' +
+    #                       self.slug + '.txt')
+    #        #self.slices.save()
+    #        super(Case, self).save(*args, **kwargs)
             
-            with open(MEDIA_ROOT + 'img_data/' + self.patient.slug + '_' +
-                      self.slug + '.txt', 'w') as f:
-                f.write(str_txt)
-            
-            #pdb.set_trace()
-            self.slices = (MEDIA_ROOT + 'img_data/' + self.patient.slug + '_' +
-                           self.slug + '.txt')
-            
-        super(Case, self).save(*args, **kwargs)
+        
+#    def save(self, *args, **kwargs):
+#        if hasattr(self.ct, 'path'):
+#            imgs = self.get_slices()
+#            str_txt = ''
+#            if not os.path.exists(MEDIA_ROOT +'images/' + self.patient.slug + '/'):
+#                os.makedirs(MEDIA_ROOT + 'images/' + self.patient.slug + '/')
+#            pdb.set_trace()
+#            for i, img in enumerate(imgs):
+#                name = self.slug + '_ax_' + str(i).zfill(3) + '.png'
+#                name = (MEDIA_ROOT + 'images/' + self.patient.slug + '/' +
+#                        self.slug + '_ax_' + str(i).zfill(3) + '.png')
+#                fromarray(img, 'L').save(name)
+#                #pdb.set_trace()
+#                str_txt += 'ax\t' + str(i).zfill(3) + '\t' + name + '\n'
+#            
+#            with open(MEDIA_ROOT + 'img_data/' + self.patient.slug + '_' +
+#                      self.slug + '.txt', 'w') as f:
+#                f.write(str_txt)
+#            
+#            #pdb.set_trace()
+#            self.slices = (MEDIA_ROOT + 'img_data/' + self.patient.slug + '_' +
+#                           self.slug + '.txt')
+#            
+#        super(Case, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.order}. {self.title}'
+        return f'{self.slug}. {self.title}'
 
     class Meta:
         ordering = ['order']
         
         
-#class ModelImages(models.Model):
-#    case = models.ForeignKey(Case, on_delete=models.CASCADE,
-#                              related_name="slices_images")
-#    img = models.ImageField(blank=True, null=True)
-#    
-#    def save(name, content, *args, **kwargs):
-#        pdb.set_trace()
-#        ModelImages(self).img = self.mainimage
-#        #ModelImages().img.save()
-#        super().save(*args, **kwargs)
-#    
-#    class Meta:
-#        abstract = True
-#
-#    def __str__(self):
-#        return self.image
-#    
-#    def render(self):
-#        return render_to_string(f'patients/content/file.html',
-#                                {'item': self})
+class ModelImages(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE,
+                              related_name="slice_img")
+    img = models.ImageField(editable=False)
+    plane = models.IntegerField(choices=PLANE_CHOICES, editable=False)
+    position = models.PositiveSmallIntegerField(editable=False)
+    
+    #def save(name, content, *args, **kwargs):
+    #    pdb.set_trace()
+    #    ModelImages(self).img = self.mainimage
+    #    #ModelImages().img.save()
+    #    super().save(*args, **kwargs)
+    
+    #def save(self, *args, **kwargs):
+    #    pdb.set_trace()
+    #    if self.img:
+    #        pdb.set_trace()
+    #    super(ModelImages, self).save(*args, **kwargs)
+    def __str__(self):
+        return f'{self.plane}. {self.position}'
+    
+    class Meta:
+        ordering = ['position']
+    #    abstract = True
+    
+    #def render(self):
+    #    return render_to_string(f'patients/content/file.html',
+    #                            {'item': self})
     #self.save()
 
+def get_slices(obj):
+    #pdb.set_trace()
+    if hasattr(obj, 'ct'):
+        
+        idxs = [i+1 for i in range(len(obj.ct.path)) if obj.ct.path[i]=='/']
+        name = MEDIA_ROOT + 'tmp/' + obj.ct.path[idxs[-1]:]
+        with open(name, 'wb') as f:
+            f.write(obj.ct.read())
+            
+        img = nib.load(name)
+        #pdb.set_trace()
+        #print(img.get_fdata().shape)
+        images = [np.array(img.get_fdata()[:,:,i]) 
+                  for i in range(img.get_fdata().shape[2])]
+        images8 = [((images[j]-np.min(images[j]))/(np.max(images[j])-
+                   np.min(images[j]))*255).astype(np.uint8) 
+                   for j in range(len(images))]
+        #pdb.set_trace()
+        os.remove(name)
+        return images8
+    
+def process_3d_image(sender, instance, created, **kwargs):
+    # this is run only on first save (creation)
+    
+    if created:
+        # if get_slices is creating and saving ModelImages objects you can pass
+        # the instance (which is the Case object) for the foreign key as well.
+        imgs = get_slices(instance)
+        if not os.path.exists(MEDIA_ROOT +'images/' + instance.patient.slug + '/'):
+            os.makedirs(MEDIA_ROOT + 'images/' + instance.patient.slug + '/')
+        for i, img in enumerate(imgs):
+            plane = 'ax'
+            position = str(i).zfill(3)
+            #name = instance.slug + '_ax_' + position + '.png'
+            #pdb.set_trace()
+            name = (MEDIA_ROOT + 'images/' + instance.patient.slug + '/' +
+                    instance.slug + '_' + plane + '_' + position + '.png')
+            fromarray(img, 'L').save(name)
+            name = name[len(MEDIA_ROOT):]
+            #pdb.set_trace()
+            case_img = ModelImages(case=instance, img=name, plane=0,
+                                   position=position)
+            with transaction.atomic():
+                #pdb.set_trace()
+                case_img.save()
+            
+        
+        
+
+post_save.connect(process_3d_image, sender=Case)    
+    
+    
 
 #class Study(models.Model):
 #    case = models.ForeignKey(Case,
@@ -232,3 +324,6 @@ class Image(ItemBase):
 
 class Video(ItemBase):
     url = models.URLField()
+    
+    
+

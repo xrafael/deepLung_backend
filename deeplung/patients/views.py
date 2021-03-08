@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
 from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateResponseMixin, View
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, \
@@ -46,6 +47,14 @@ class ManagePatientListView(OwnerPatientMixin, ListView):
 
 class PatientCreateView(OwnerPatientEditMixin, CreateView):
     permission_required = 'patients.add_patient'
+    
+#    def post(self, request, *args, **kwargs):
+#        pdb.set_trace()
+#        if formset.is_valid():
+#            formset.save()
+#            return redirect('manage_patient_list')
+#        return self.render_to_response({'patient': self.patient,
+#                                        'formset': formset})
 
 
 class PatientUpdateView(OwnerPatientEditMixin, UpdateView):
@@ -78,6 +87,7 @@ class PatientCaseUpdateView(TemplateResponseMixin, View):
 
     def post(self, request, *args, **kwargs):
         formset = self.get_formset(data=request.POST)
+        pdb.set_trace()
         if formset.is_valid():
             formset.save()
             return redirect('manage_patient_list')
@@ -106,6 +116,14 @@ class PatientListView(TemplateResponseMixin, View):
 class PatientDetailView(DetailView):
     model = Patient
     template_name = 'patients/patient/detail.html'
+    
+    
+#class CaseCreateView(CreateView):
+#    model = Case
+#    pdb.set_trace()
+#    def form_valid(self, form):
+#        pdb.set_trace()
+#        return HttpResponseRedirect(self.get_success_url())
 
 
 #class StudyCreateUpdateView(TemplateResponseMixin, View):
@@ -182,6 +200,8 @@ class PatientDetailView(DetailView):
 #                                   patient__owner=request.user)
 #
 #        return self.render_to_response({'case': case})
+
+
 
 
 class CaseOrderView(CsrfExemptMixin,

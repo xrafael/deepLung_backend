@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('patient/', include('patients.urls')),
     path('', PatientListView.as_view(), name='patient_list'),
+    path('api/', include('patients.api.urls', namespace='api')),
 ]
 
 if settings.DEBUG:
