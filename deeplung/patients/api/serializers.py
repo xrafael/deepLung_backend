@@ -12,14 +12,15 @@ class SubjectSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ModelImages
-        fields = ['plane', 'position', 'img']
+        fields = ['case', 'plane', 'position', 'img']
         
         
 class CaseSerializer(serializers.ModelSerializer):
     slice_img = ImageSerializer(many=True)
     class Meta:
         model = Case
-        fields = ['order', 'title', 'created', 'ct', 'slice_img']
+        fields = ['patient', 'slug', 'order', 'title', 'created', 'number_nods', 
+                  'annotations', 'predictions', 'ct', 'slice_img']
         
         
 class PatientSerializer(serializers.ModelSerializer):
@@ -28,5 +29,6 @@ class PatientSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Patient
-        fields = ['id', 'name', 'surname', 'slug', 'age',
-                  'created', 'gender', 'race', 'cases']
+        fields = ['subject', 'owner', 'id', 'name', 'surname', 'slug', 'age',
+                  'created', 'gender', 'race', 'height', 'weight', 'alive', 'smoker',
+                  'comments', 'med_history', 'evolution_treatment', 'cases']

@@ -130,3 +130,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
 }
+
+# !!!!!This is for demonstration only!!!!!
+#AUTHENTICATION_BACKENDS = ['patients.api.auth.AlwaysRootBackend']
