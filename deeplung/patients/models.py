@@ -183,7 +183,7 @@ class Case(models.Model):
 #        super(Case, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.slug}. {self.title}'
+        return f'{self.patient}. {self.slug}. {self.title}'
 
     class Meta:
         ordering = ['order']
@@ -208,7 +208,7 @@ class ModelImages(models.Model):
     #        pdb.set_trace()
     #    super(ModelImages, self).save(*args, **kwargs)
     def __str__(self):
-        return f'{self.plane}. {self.position}'
+        return f'{self.case}. {self.plane}. {self.position}'
     
     class Meta:
         ordering = ['position']

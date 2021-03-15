@@ -8,9 +8,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 #from rest_framework.decorators import action
 from ..models import Subject, Patient, Case, ModelImages
-from .serializers import SubjectSerializer, PatientSerializer, CaseSerializer
+from rest_framework.renderers import JSONRenderer
+from .serializers import *
 #from .permissions import IsEnrolled
 from deeplung.settings import MEDIA_ROOT
+import os
 import pdb
 
 
@@ -106,13 +108,23 @@ class PatientViewSet(viewsets.ReadOnlyModelViewSet):
     #        
     #        
     #        pdb.set_trace()
-    serializer_class = PatientSerializer
-
-    #@action(detail=True,
-    #        methods=['post'],
-    #        authentication_classes=[BasicAuthentication],
-    #        permission_classes=[IsAuthenticated])
+    serializer_class = OnlyPatientSerializer
     
+class PatientDetailView(generics.RetrieveAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+    
+    def get(self, request, *args, **kwargs):
+        #pdb.set_trace()
+        slug = os.path.basename(os.path.normpath(request.get_full_path()))
+        patient = Patient.objects.get(slug=slug)
+        
+        serializer = PatientSerializer(patient)
+        #if serializer.is_valid():
+        #    serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     
 class PatientCreateView(generics.ListCreateAPIView):
     queryset = Patient.objects.all()

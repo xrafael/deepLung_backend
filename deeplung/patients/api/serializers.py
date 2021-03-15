@@ -30,5 +30,28 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = ['subject', 'owner', 'id', 'name', 'surname', 'slug', 'age',
-                  'created', 'gender', 'race', 'height', 'weight', 'alive', 'smoker',
-                  'comments', 'med_history', 'evolution_treatment', 'cases']
+                  'created', 'gender', 'race', 'height', 'weight', 'alive',
+                  'smoker', 'comments', 'med_history', 'evolution_treatment', 
+                  'cases']
+        
+        
+class OnlyCaseSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Case
+        fields = ['patient', 'slug', 'order', 'title', 'created', 'number_nods', 
+                  'annotations', 'predictions', 'ct']
+        
+        
+class OnlyPatientSerializer(serializers.ModelSerializer):
+    cases = OnlyCaseSerializer(many=True)
+    #pdb.set_trace()
+    
+    class Meta:
+        model = Patient
+        fields = ['subject', 'owner', 'id', 'name', 'surname', 'slug', 'age',
+                  'created', 'gender', 'race', 'height', 'weight', 'alive',
+                  'smoker', 'comments', 'med_history', 'evolution_treatment',
+                  'cases']
+        
+        
