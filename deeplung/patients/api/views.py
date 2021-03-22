@@ -16,24 +16,24 @@ import os
 import pdb
 
 
-@api_view(['GET', 'POST'])
-def post_patient(request):
-    """
-    List all code snippets, or create a new snippet.
-    """
-    if request.method == 'GET':
-        patients = Patient.objects.all()
-        serializer = PatientSerializer(patients, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        pdb.set_trace()
-        patient_data = JSONParser().parse(request)
-        serializer = PatientSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#@api_view(['GET', 'POST'])
+#def post_patient(request):
+#    """
+#    List all code snippets, or create a new snippet.
+#    """
+#    if request.method == 'GET':
+#        patients = Patient.objects.all()
+#        serializer = PatientSerializer(patients, many=True)
+#        return Response(serializer.data)
+#
+#    elif request.method == 'POST':
+#        pdb.set_trace()
+#        patient_data = JSONParser().parse(request)
+#        serializer = PatientSerializer(data=request.data)
+#        if serializer.is_valid():
+#            serializer.save()
+#            return Response(serializer.data, status=status.HTTP_201_CREATED)
+#        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SubjectListView(generics.ListAPIView):
@@ -127,12 +127,14 @@ class PatientDetailView(generics.RetrieveAPIView):
 
     
 class PatientCreateView(generics.ListCreateAPIView):
+    #pdb.set_trace()
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
     #pdb.set_trace()
     #authentication_classes = (BasicAuthentication,)
     #permission_classes = (IsAuthenticated,)
     def post(self, request, *args, **kwargs):
+        #pdb.set_trace()
         data = request.data
         new_patient = Patient(owner=Patient.objects.all()[0].owner,
                               subject=Subject.objects.all()[0], name=data['name'], 

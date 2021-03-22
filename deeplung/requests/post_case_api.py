@@ -7,9 +7,9 @@ password = 'giulia'
 
 base_url = 'http://127.0.0.1:8000/api/'
 
-path_ct = "/HDD/UBUNTU/database/COVID/ieee_CT/coronacases_005.nii.gz"
+path_ct = "/HDD/UBUNTU/database/COVID/ieee_CT/coronacases_006.nii.gz"
 case_data = {
-    "patient_slug": "CrrTwM",
+    "patient_slug": "3U7WZK",
     "title": "example api case",
     "annotations": "example annotation for John Doe"
 }

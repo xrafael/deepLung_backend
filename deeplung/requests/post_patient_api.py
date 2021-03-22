@@ -8,10 +8,10 @@ password = 'giulia'
 base_url = 'http://127.0.0.1:8000/api/'
 
 patient_data = {
-    "name": "John",
+    "name": "Joahnna",
     "surname": "Doe",
     "age": 99,
-    "gender": 0,
+    "gender": 2,
     "race": 0
 }
 

@@ -20,6 +20,7 @@ import os
 #import random
 #import string 
 import pdb
+import asyncio
 
 
 #def rand_slug(n):
@@ -240,9 +241,9 @@ def get_slices(obj):
         os.remove(name)
         return images8
     
+
 def process_3d_image(sender, instance, created, **kwargs):
     # this is run only on first save (creation)
-    
     if created:
         # if get_slices is creating and saving ModelImages objects you can pass
         # the instance (which is the Case object) for the foreign key as well.
@@ -264,11 +265,11 @@ def process_3d_image(sender, instance, created, **kwargs):
             with transaction.atomic():
                 #pdb.set_trace()
                 case_img.save()
-            
-        
-        
+    
+    
+post_save.connect(process_3d_image, sender=Case)
 
-post_save.connect(process_3d_image, sender=Case)    
+
     
     
 
